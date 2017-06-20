@@ -25,11 +25,10 @@ contained in time_vector.
 The pulse must fit within the time_vector.
 """
 def top_hat_pulse(start_time, pulse_length, time_vector):
-    number_samples = len(time_vector)   # the number of samples in the measurement time
-    pulse_vector = np.zeros((number_samples,1)) # numpy array to hold the pulse
+    pulse_vector = np.zeros(np.size(time_vector)) # numpy array to hold the pulse
     end_time = start_time + pulse_length    # the end time of the pulse
     # Create the pulse
-    for n in range(number_samples):
+    for n in range(len(time_vector)):
         if time_vector[n] >= start_time and time_vector[n] <= end_time:
             pulse_vector[n] = 1
     return pulse_vector
@@ -54,7 +53,8 @@ def calculate_pulses(start_time, pulse_width, delay, time_vector):
     pulse = top_hat_pulse(start_time, pulse_width, time_vector)  # output pulse
     detected_pulse = top_hat_pulse(delay, pulse_width, time_vector) # pulse that arrives at detector
     measured_pulse = measure_pulse(detected_pulse, start_time + pulse_width, time_vector) # pulse that is actually measured
-    return pulse, detected_pulse, measured_pulse        
+    pulse_area = np.trapz(measured_pulse, time_vector);     # The area of the measured pulse
+    return pulse, detected_pulse, measured_pulse, pulse_area        
 
 clock_speed = 20        # MHz - the speed of the clock
 start_time = 0;
@@ -66,11 +66,11 @@ time_vector = np.linspace(0, 6/clock_speed, 500)   # vector that is used for sim
 delay = distance/LIGHT_SPEED    # the delay between emission and measurement based on the distance.
 
 
-pulse_A, detected_pulse_A, measured_pulse_A =  calculate_pulses(start_time, pulse_width_A, delay, time_vector) # First pulse for testing
-pulse_B, detected_pulse_B, measured_pulse_B =  calculate_pulses(start_time, pulse_width_B, delay, time_vector) # First pulse for testing
-pulse_C, detected_pulse_C, measured_pulse_C =  calculate_pulses(start_time, pulse_width_C, delay, time_vector) # First pulse for testing
+pulse_A, detected_pulse_A, measured_pulse_A, area_A =  calculate_pulses(start_time, pulse_width_A, delay, time_vector) # First pulse for testing
+pulse_B, detected_pulse_B, measured_pulse_B, area_B =  calculate_pulses(start_time, pulse_width_B, delay, time_vector) # First pulse for testing
+pulse_C, detected_pulse_C, measured_pulse_C, area_C =  calculate_pulses(start_time, pulse_width_C, delay, time_vector) # First pulse for testing
 
-
+print("Pulse areas are {:.2}, {:.2}, {:.2}".format(area_A, area_B, area_C))
 
 # Plot data
 plt.close()
